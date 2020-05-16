@@ -54,14 +54,13 @@ public class PedidoFachada {
             vendedorComissao.setPercentual(vendedor.getPercentualComissao());
 
             PedidoProduto pedidoProduto = new PedidoProduto();
-            List<Object> pedidosProdutos = new LinkedList<>();
-            pedidoProduto.where("pedido_id = " + pedido.getId());
+            List<PedidoProduto> pedidosProdutos = new LinkedList<>();
 
-            
-            pedidosProdutos.forEach((pp) -> {
+            //CONVERSAO
+            pedidoProduto.where("pedido_id = " + pedido.getId()).forEach((pp) -> {
                 pedidosProdutos.add((PedidoProduto) pp);
             });
-            
+
             vendedorComissao.setValor(
                     vendedor.getPercentualComissao() * pedidosProdutos.stream()
                     .mapToDouble(PedidoProduto::getValorTotal)
@@ -79,50 +78,43 @@ public class PedidoFachada {
         }
     }
 
-    public static void excluirPedido(Pedido pedido, Connection conexao) {
-        /*try {
-            VendedorComissaoDao vendedorComissaoDao = new VendedorComissaoDao(conexao);
-            vendedorComissaoDao.selectAll()
+    public static void excluirPedido(Pedido pedido) {
+        try {
+            DB.inicirModoDeTransacao();
+            VendedorComissao vendedorComissao = new VendedorComissao();
+            vendedorComissao.where("pedido_id = " + pedido.getId())
                     .forEach(vc -> {
-                        vendedorComissaoDao.delete(vc);
+                        ((VendedorComissao) vc).delete();
                     });
 
-            PedidoProdutoDao pedidoProdutoDao = new PedidoProdutoDao(conexao);
+            PedidoProduto pedidoProduto = new PedidoProduto();
 
-            ProdutoMovimentoDao produtoMovimentoDao = new ProdutoMovimentoDao(conexao);
 
-            ProdutoDao produtoDao = new ProdutoDao(conexao);
-
-            pedidoProdutoDao.selectAll()
+            pedidoProduto.where("pedido_id = " + pedido.getId())
                     .forEach(pp -> {
-                        if (pp.getIdPedido() == pedido.getId()) {
-                            Produto produto = new Produto();
-                            produto = produtoDao.select(pp.getIdProduto()).get();
-                            produto.setSaldo(produto.getSaldo() + pp.getQuantidade());
-                            produtoDao.update(produto);
+                        Produto produto = new Produto();
+                        produto = (Produto) produto.buscar(((PedidoProduto)pp).getProduto().getId());
+                        produto.setSaldo(produto.getSaldo() + ((PedidoProduto)pp).getQuantidade());
+                        produto.update();
 
-                            ProdutoMovimento produtoMovimento = new ProdutoMovimento();
-                            produtoMovimento.setIdProduto(produto.getId());
-                            produtoMovimento.setQuantidade(pp.getQuantidade());
-                            produtoMovimento.setData(new Date());
-                            produtoMovimento.setDescricao(ProdutoMovimento.Operacao.E.getDescricao());
-                            produtoMovimento.setTipo(ProdutoMovimento.Operacao.E);
-                            produtoMovimentoDao.inserir(produtoMovimento);
-
-                            pedidoProdutoDao.delete(pp);
-                        }
+                        ProdutoMovimento produtoMovimento = new ProdutoMovimento();
+                        produtoMovimento.setProduto(produto);
+                        produtoMovimento.setQuantidade(((PedidoProduto)pp).getQuantidade());
+                        produtoMovimento.setData(new Date());
+                        produtoMovimento.setDescricao(ProdutoMovimento.Operacao.E.getDescricao());
+                        produtoMovimento.setTipo(ProdutoMovimento.Operacao.E);
+                        produtoMovimento.create();
+                        ((PedidoProduto) pp).delete();
                     });
 
-            PedidoDao pedidoDao = new PedidoDao(conexao);
-            pedidoDao.delete(pedido);
+            pedido.delete();
 
-            FabricaConexaoTransacional.commitTransacao(conexao);
+            DB.fecharModoDeTransacao();
         } catch (Exception e) {
-            FabricaConexaoTransacional.rollbackTransacao(conexao);
-            FabricaConexaoTransacional.closeConnection(conexao);
+            DB.erroNaTransacao();
             throw new RuntimeException("Não foi possível efetuar a operacao de "
                     + "excluir"
                     + "\nError: " + e.getMessage());
-        }*/
+        }
     }
 }

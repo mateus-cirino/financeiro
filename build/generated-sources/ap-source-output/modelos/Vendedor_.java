@@ -8,10 +8,8 @@ import javax.persistence.metamodel.StaticMetamodel;
 @StaticMetamodel(Vendedor.class)
 public abstract class Vendedor_ extends modelos.extensoes.Pessoa_ {
 
-	public static volatile SingularAttribute<Vendedor, String> nome;
 	public static volatile SingularAttribute<Vendedor, Double> percentualComissao;
 
-	public static final String NOME = "nome";
 	public static final String PERCENTUAL_COMISSAO = "percentualComissao";
 
 }

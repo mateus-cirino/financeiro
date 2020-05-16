@@ -46,11 +46,38 @@ public class PedidoControle {
     public static void removerPedido(String codigo) {
         Pedido pedido = new Pedido();
         pedido = (Pedido) pedido.buscar(Integer.parseInt(codigo));
-
-        //PedidoFachada.excluirPedido(pedido);
+        
+        PedidoFachada.excluirPedido(pedido);
     }
 
     public static Collection<Map<String, String>> listarPedidos() {
+        //AREA DE TESTES
+        Cliente cliente = new Cliente();
+        cliente.setCpf("23132");
+        cliente.setNome("Mateus");
+        cliente.create();
+        
+        Vendedor vendedor = new Vendedor();
+        vendedor.setNome("Felipe");
+        vendedor.setPercentualComissao(0.5);
+        vendedor.create();
+        
+        Produto p1 = new Produto();
+        p1.setDescricao("Banana");
+        p1.setSaldo(1000.0);
+        p1.setQuantidade(20.0);
+        p1.setPreco(10.0);
+        p1.setUnidade("KG");
+        p1.create();
+        
+        Produto p2 = new Produto();
+        p2.setDescricao("Feijao");
+        p2.setSaldo(1000.0);
+        p2.setQuantidade(220.0);
+        p2.setPreco(210.0);
+        p2.setUnidade("KG");
+        p2.create();
+        
         List<Pedido> pedidos = new LinkedList<>();
         Pedido pedido = new Pedido();
         pedido.buscarTodos().forEach((p) -> {

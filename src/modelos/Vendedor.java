@@ -11,7 +11,6 @@ import javax.persistence.Id;
 @Entity
 public class Vendedor extends Pessoa {
 
-    private String nome;
     private Double percentualComissao;
 
     public Double getPercentualComissao() {

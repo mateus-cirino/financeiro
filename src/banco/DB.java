@@ -61,13 +61,11 @@ public class DB {
         if (!modoDeTransacao) {
             entityManager.getTransaction().begin();
 
-            entityManager.merge(objeto);
-            entityManager.detach(objeto);
+            entityManager.detach(entityManager.merge(objeto));
 
             entityManager.getTransaction().commit();
         } else {
-            entityManager.merge(objeto);
-            entityManager.detach(objeto);
+            entityManager.detach(entityManager.merge(objeto));
         }
     }
 
@@ -75,11 +73,11 @@ public class DB {
         if (!modoDeTransacao) {
             entityManager.getTransaction().begin();
 
-            entityManager.remove(objeto);
+            entityManager.remove(entityManager.merge(objeto));
 
             entityManager.getTransaction().commit();
         } else {
-            entityManager.remove(objeto);
+            entityManager.remove(entityManager.merge(objeto));
         }
     }
 

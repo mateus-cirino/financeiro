@@ -6,6 +6,7 @@
 package testes;
 
 import controles.ClienteControle;
+import modelos.Cliente;
 
 /**
  *
@@ -13,6 +14,13 @@ import controles.ClienteControle;
  */
 public class TesteCliente {
     public static void main(String[] args) {
-        ClienteControle.listarClientes();
+        Cliente cliente = new Cliente();
+        cliente.setCpf("21123123");
+        cliente.create();
+        
+        cliente.setCpf("1111");
+        cliente.update();
+        
+        cliente.delete();
     }
 }
