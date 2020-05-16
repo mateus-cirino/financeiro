@@ -54,19 +54,13 @@ public class PedidoFachada {
             vendedorComissao.setPercentual(vendedor.getPercentualComissao());
 
             PedidoProduto pedidoProduto = new PedidoProduto();
-            List<PedidoProduto> pedidosProdutos = new LinkedList<>();
-
-            //CONVERSAO
-            pedidoProduto.where("pedido_id = " + pedido.getId()).forEach((pp) -> {
-                pedidosProdutos.add((PedidoProduto) pp);
-            });
 
             vendedorComissao.setValor(
-                    vendedor.getPercentualComissao() * pedidosProdutos.stream()
+                    vendedor.getPercentualComissao() * ((List<PedidoProduto>)(Object)pedidoProduto.where("pedido_id = " + pedido.getId())).stream()
                     .mapToDouble(PedidoProduto::getValorTotal)
                     .sum()
             );
-
+            
             vendedorComissao.create();
 
             DB.fecharModoDeTransacao();
@@ -89,17 +83,16 @@ public class PedidoFachada {
 
             PedidoProduto pedidoProduto = new PedidoProduto();
 
-
             pedidoProduto.where("pedido_id = " + pedido.getId())
                     .forEach(pp -> {
                         Produto produto = new Produto();
-                        produto = (Produto) produto.buscar(((PedidoProduto)pp).getProduto().getId());
-                        produto.setSaldo(produto.getSaldo() + ((PedidoProduto)pp).getQuantidade());
+                        produto = (Produto) produto.buscar(((PedidoProduto) pp).getProduto().getId());
+                        produto.setSaldo(produto.getSaldo() + ((PedidoProduto) pp).getQuantidade());
                         produto.update();
 
                         ProdutoMovimento produtoMovimento = new ProdutoMovimento();
                         produtoMovimento.setProduto(produto);
-                        produtoMovimento.setQuantidade(((PedidoProduto)pp).getQuantidade());
+                        produtoMovimento.setQuantidade(((PedidoProduto) pp).getQuantidade());
                         produtoMovimento.setData(new Date());
                         produtoMovimento.setDescricao(ProdutoMovimento.Operacao.E.getDescricao());
                         produtoMovimento.setTipo(ProdutoMovimento.Operacao.E);
