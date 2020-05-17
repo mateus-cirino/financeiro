@@ -5,9 +5,8 @@
  */
 package modelos.extensoes;
 
-import banco.DB;
+import banco.Eloquent;
 import java.util.List;
-import javax.persistence.EntityManager;
 
 /**
  *
@@ -15,66 +14,28 @@ import javax.persistence.EntityManager;
  */
 public abstract class Model {
 
-    private EntityManager em;
-
-    public Model() {
-
-    }
-
-    public Model(EntityManager em) {
-        this.em = em;
-    }
-
     public void create() {
-        if (this.em != null) {
-            DB.persistir(this, this.em);
-        } else {
-            DB.persistir(this);
-
-        }
+        Eloquent.persistir(this);
     }
 
     public void update() {
-        if (this.em != null) {
-            DB.atualizar(this, this.em);
-        } else {
-            DB.atualizar(this);
-        }
+        Eloquent.atualizar(this);
     }
 
     public void delete() {
-        if (this.em != null) {
-            DB.deletar(this, this.em);
-        } else {
-            DB.deletar(this);
-        }
+        Eloquent.deletar(this);
     }
 
     public Object buscar(int id) {
-        if (this.em != null) {
-            return DB.buscar(this.getClass(), id, this.em);
-        } else {
-            return DB.buscar(this.getClass(), id);
-        }
+        return Eloquent.buscar(this.getClass(), id);
     }
 
     public List<Object> buscarTodos() {
-        if (this.em != null) {
-            return DB.buscarTodos(this.getClass(), this.em);
-        } else {
-            return DB.buscarTodos(this.getClass());
-        }
+        return Eloquent.buscarTodos(this.getClass());
     }
 
     public List<Object> where(String where) {
-        if (this.em != null) {
-        return DB.where(where, this.getClass(), this.em);
-        } else {
-        return DB.where(where, this.getClass());
-        }
+        return Eloquent.where(where, this.getClass());
     }
 
-    public EntityManager getEm() {
-        return em;
-    }
 }

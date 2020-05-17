@@ -7,21 +7,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 
 @Entity
 public class Cliente extends Pessoa {
 
     private String cpf;
     private String ultimaCompra;
-
-    public Cliente() {
-
-    }
-
-    public Cliente(EntityManager em) {
-        super(em);
-    }
 
     public String getCpf() {
         return cpf;

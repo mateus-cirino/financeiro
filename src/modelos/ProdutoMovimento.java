@@ -5,7 +5,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,14 +16,6 @@ public class ProdutoMovimento extends Model {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    public ProdutoMovimento() {
-
-    }
-
-    public ProdutoMovimento(EntityManager em) {
-        super(em);
-    }
 
     public enum Operacao {
         E("Entrada"),

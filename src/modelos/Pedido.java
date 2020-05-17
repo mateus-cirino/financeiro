@@ -7,15 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 import modelos.extensoes.Model;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-
 @Entity
-public class Pedido extends Model{
+public class Pedido extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,14 +25,6 @@ public class Pedido extends Model{
     @ManyToOne
     private Vendedor vendedor;
 
-    public Pedido() {
-        
-    }
-    
-    public Pedido(EntityManager em) {
-        super(em);
-    }
-    
     public int getId() {
         return id;
     }
@@ -80,13 +70,13 @@ public class Pedido extends Model{
         this.vendedor = vendedor;
     }
 
-    public Map<String,String> toMap() {
+    public Map<String, String> toMap() {
         Cliente cliente = new Cliente();
 
         Vendedor vendedor = new Vendedor();
 
         Map<String, String> pedidoMap = new HashMap<>();
-        
+
         pedidoMap.put("id", Integer.toString(this.id));
         pedidoMap.put("data", this.data);
         pedidoMap.put("observacao", this.observacao);
@@ -95,7 +85,7 @@ public class Pedido extends Model{
 
         return pedidoMap;
     }
-     
+
     @Override
     public String toString() {
         return "Pedido [data=" + data + ", id=" + id + ", cliente=" + cliente.getNome() + ", vendedor=" + vendedor.getNome()

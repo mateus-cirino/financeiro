@@ -4,7 +4,6 @@ import modelos.extensoes.Model;
 import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,14 +19,6 @@ public class Produto extends Model {
     private String unidade;
     private Double quantidade;
     private Double preco;
-
-    public Produto() {
-
-    }
-
-    public Produto(EntityManager em) {
-        super(em);
-    }
 
     public int getId() {
         return id;

@@ -7,8 +7,6 @@ package banco;
 
 import java.util.List;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 /**
@@ -17,96 +15,53 @@ import javax.persistence.Query;
  */
 public class DB {
 
-    private static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("financeiroPU");
+    private EntityManager entityManager;
 
-    private static EntityManager entityManager = entityManagerFactory.createEntityManager();
-
-    public static EntityManager inicirModoDeTransacao() {
-        EntityManager em = entityManagerFactory.createEntityManager();
-        em.getTransaction().begin();
-        return em;
+    public DB() {
+        this.entityManager = Eloquent.getEntityManagerFactory().createEntityManager();
     }
 
-    public static void fecharModoDeTransacao(EntityManager em) {
-        em.getTransaction().commit();
-        em.close();
+    public void iniciarTransacao() {
+        if(!this.entityManager.isOpen()) {
+            this.entityManager = Eloquent.getEntityManagerFactory().createEntityManager();
+        }
+        this.entityManager.getTransaction().begin();
     }
 
-    public static void erroNaTransacao(EntityManager em) {
-        em.getTransaction().rollback();
-        em.close();
+    public void fecharModoDeTransacao() {
+        this.entityManager.getTransaction().commit();
+        this.entityManager.close();
     }
 
-    public static void persistir(Object objeto) {
-        entityManager.getTransaction().begin();
-
-        entityManager.persist(objeto);
-        entityManager.detach(objeto);
-
-        entityManager.getTransaction().commit();
+    public void erroNaTransacao() {
+        this.entityManager.getTransaction().rollback();
+        this.entityManager.close();
     }
 
-    public static void persistir(Object objeto, EntityManager em) {
-        em.persist(objeto);
-        em.detach(objeto);
+    public void persistir(Object objeto) {
+        this.entityManager.persist(objeto);
+        this.entityManager.detach(objeto);
     }
 
-    public static void atualizar(Object objeto) {
-        entityManager.getTransaction().begin();
-
-        entityManager.detach(entityManager.merge(objeto));
-
-        entityManager.getTransaction().commit();
+    public void atualizar(Object objeto) {
+        this.entityManager.detach(entityManager.merge(objeto));
     }
 
-    public static void atualizar(Object objeto, EntityManager em) {
-        entityManager.detach(entityManager.merge(objeto));
+    public void deletar(Object objeto) {
+        this.entityManager.remove(entityManager.merge(objeto));
     }
 
-    public static void deletar(Object objeto) {
-        entityManager.getTransaction().begin();
-
-        entityManager.remove(entityManager.merge(objeto));
-
-        entityManager.getTransaction().commit();
+    public Object buscar(Object objeto, int id) {
+        return this.entityManager.find(objeto.getClass(), id);
     }
 
-    public static void deletar(Object objeto, EntityManager em) {
-        entityManager.remove(entityManager.merge(objeto));
-    }
-
-    public static Object buscar(Class classe, int id) {
-        entityManager.getTransaction().begin();
-
-        Object objeto = entityManager.find(classe, id);
-
-        entityManager.getTransaction().commit();
-
-        return objeto;
-    }
-
-    public static Object buscar(Class classe, int id, EntityManager em) {
-        Object objeto = em.find(classe, id);
-        return objeto;
-    }
-
-    public static List<Object> buscarTodos(Class classe) {
-        Query query = entityManager.createQuery("FROM " + classe.getName(), classe);
+    public List<Object> buscarTodos(Object objeto) {
+        Query query = this.entityManager.createQuery("FROM " + objeto.getClass().getName(), objeto.getClass());
         return query.getResultList();
     }
 
-    public static List<Object> buscarTodos(Class classe, EntityManager em) {
-        Query query = em.createQuery("FROM " + classe.getName(), classe);
-        return query.getResultList();
-    }
-
-    public static List<Object> where(String where, Class classe) {
-        Query query = entityManager.createQuery("FROM " + classe.getSimpleName() + " WHERE " + where);
-        return query.getResultList();
-    }
-    
-    public static List<Object> where(String where, Class classe, EntityManager em) {
-        Query query = em.createQuery("FROM " + classe.getSimpleName() + " WHERE " + where);
+    public List<Object> where(String where, Object objeto) {
+        Query query = this.entityManager.createQuery("FROM " + objeto.getClass().getSimpleName() + " WHERE " + where);
         return query.getResultList();
     }
 }

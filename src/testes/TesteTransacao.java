@@ -16,7 +16,7 @@ import modelos.Produto;
 public class TesteTransacao {
     public static void main(String[] args) {
         try {
-            DB.inicirModoDeTransacao();
+            //DB.inicirModoDeTransacao();
             
             Cliente cliente = new Cliente();
             cliente.setCpf("219381209382109");

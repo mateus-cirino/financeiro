@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
 import modelos.Cliente;
 
 import modelos.Pedido;
@@ -19,41 +18,45 @@ import modelos.Vendedor;
 public class PedidoControle {
 
     public static void salvarPedido(Map<String, String> pedidoMap, Collection<Map<String, String>> produtosMap) {
-        EntityManager em = DB.inicirModoDeTransacao();
-
-        Pedido pedido = new Pedido(em);
+        DB db = new DB();
+        
+        db.iniciarTransacao();
+        
+        Pedido pedido = new Pedido();
 
         pedido.setData(new Date());
         pedido.setObservacao(pedidoMap.get("observacao"));
 
-        Cliente cliente = new Cliente(em);
+        Cliente cliente = new Cliente();
 
-        pedido.setCliente((Cliente) cliente.buscar(Integer.parseInt(pedidoMap.get("cliente"))));
+        pedido.setCliente((Cliente) db.buscar(cliente, Integer.parseInt(pedidoMap.get("cliente"))));
 
-        Vendedor vendedor = new Vendedor(em);
+        Vendedor vendedor = new Vendedor();
 
-        pedido.setVendedor((Vendedor) vendedor.buscar(Integer.parseInt(pedidoMap.get("vendedor"))));
+        pedido.setVendedor((Vendedor) db.buscar(vendedor, Integer.parseInt(pedidoMap.get("vendedor"))));
 
         Collection<Produto> produtos = new LinkedList<>();
 
         produtosMap.forEach(p -> {
-            Produto produto = new Produto(vendedor.getEm());
+            Produto produto = new Produto();
             produto = (Produto) produto.buscar(Integer.parseInt(p.get("id")));
             produto.setQuantidade(Double.parseDouble(p.get("saldo")));
 
             produtos.add(produto);
         });
 
-        PedidoFachada.salvarPedido(pedido, produtos, em);
+        PedidoFachada.salvarPedido(pedido, produtos, db);
     }
 
     public static void removerPedido(String codigo) {
-        EntityManager em = DB.inicirModoDeTransacao();
+        DB db = new DB();
+        
+        db.iniciarTransacao();
+        
+        Pedido pedido = new Pedido();
+        pedido = (Pedido) db.buscar(pedido, Integer.parseInt(codigo));
 
-        Pedido pedido = new Pedido(em);
-        pedido = (Pedido) pedido.buscar(Integer.parseInt(codigo));
-
-        PedidoFachada.excluirPedido(pedido, em);
+        PedidoFachada.excluirPedido(pedido, db);
     }
 
     public static Collection<Map<String, String>> listarPedidos() {
