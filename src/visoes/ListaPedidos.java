@@ -6,6 +6,7 @@
 package visoes;
 
 import controles.PedidoControle;
+import testes.TesteInsert;
 import java.util.Collection;
 import java.util.Map;
 import javax.swing.table.DefaultTableModel;
@@ -150,9 +151,9 @@ public class ListaPedidos extends javax.swing.JFrame {
         DefaultTableModel TableModel = (DefaultTableModel) jTable1.getModel();
 
         if (jTable1.getSelectedRow() > -1) {
-            
+
             PedidoControle.removerPedido(TableModel.getValueAt(jTable1.getSelectedRow(), 0).toString());
-            
+
             jButtonCarregar.doClick();
         }
     }//GEN-LAST:event_jButtonExcluirActionPerformed
@@ -192,19 +193,22 @@ public class ListaPedidos extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new ListaPedidos().setVisible(true);
+                //POPULANDO O BANCO
+                TesteInsert.inserirDados();
+                //FIM
             }
         });
     }
-    
+
     public void carregarPedidos() {
-        Collection<Map<String,String>> pedidos = PedidoControle.listarPedidos();
+        Collection<Map<String, String>> pedidos = PedidoControle.listarPedidos();
 
         DefaultTableModel TableModel = (DefaultTableModel) jTable1.getModel();
-        
+
         TableModel.setNumRows(0);
-        
+
         pedidos.forEach(pedido -> {
-            TableModel.addRow(new Object[] {
+            TableModel.addRow(new Object[]{
                 pedido.get("id"),
                 pedido.get("data"),
                 pedido.get("observacao"),

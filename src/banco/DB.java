@@ -60,7 +60,7 @@ public class DB {
         return query.getResultList();
     }
 
-    public List<Object> where(String where, Object objeto) {
+    public List<Object> where(Object objeto, String where) {
         Query query = this.entityManager.createQuery("FROM " + objeto.getClass().getSimpleName() + " WHERE " + where);
         return query.getResultList();
     }

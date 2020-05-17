@@ -15,8 +15,11 @@ import modelos.VendedorComissao;
 
 public class PedidoFachada {
 
-    public static void salvarPedido(Pedido pedido, Collection<Produto> produtos, DB db) {
+    public static void salvarPedido(Pedido pedido, Collection<Produto> produtos) {
+        DB db = new DB();
         try {
+            db.iniciarTransacao();
+
             db.persistir(pedido);
 
             produtos.forEach(p -> {
@@ -53,7 +56,7 @@ public class PedidoFachada {
             PedidoProduto pedidoProduto = new PedidoProduto();
 
             vendedorComissao.setValor(
-                    vendedor.getPercentualComissao() * ((List<PedidoProduto>) (Object) db.where("pedido_id = " + pedido.getId(), pedidoProduto)).stream()
+                    vendedor.getPercentualComissao() * ((List<PedidoProduto>) (Object) db.where(pedidoProduto, "pedido_id = " + pedido.getId())).stream()
                     .mapToDouble(PedidoProduto::getValorTotal)
                     .sum()
             );
@@ -68,24 +71,27 @@ public class PedidoFachada {
                     + "\nError: " + e.getMessage());
         }
     }
-    
-    public static void excluirPedido(Pedido pedido, DB db) {
+
+    public static void excluirPedido(Pedido pedido) {
+        DB db = new DB();
         try {
+            db.iniciarTransacao();
+
             VendedorComissao vendedorComissao = new VendedorComissao();
-            db.where("pedido_id = " + pedido.getId(), vendedorComissao)
+            db.where(vendedorComissao, "pedido_id = " + pedido.getId())
                     .forEach(vc -> {
                         db.deletar(vc);
                     });
 
             PedidoProduto pedidoProduto = new PedidoProduto();
 
-            db.where("pedido_id = " + pedido.getId(), pedidoProduto)
+            db.where(pedidoProduto, "pedido_id = " + pedido.getId())
                     .forEach(pp -> {
                         Produto produto = new Produto();
                         produto = (Produto) produto.buscar(((PedidoProduto) pp).getProduto().getId());
                         produto.setSaldo(produto.getSaldo() + ((PedidoProduto) pp).getQuantidade());
                         db.atualizar(produto);
-                        
+
                         ProdutoMovimento produtoMovimento = new ProdutoMovimento();
                         produtoMovimento.setProduto(produto);
                         produtoMovimento.setQuantidade(((PedidoProduto) pp).getQuantidade());
@@ -97,7 +103,7 @@ public class PedidoFachada {
                     });
 
             db.deletar(pedido);
-            
+
             db.fecharModoDeTransacao();
         } catch (Exception e) {
             db.erroNaTransacao();
@@ -106,5 +112,5 @@ public class PedidoFachada {
                     + "\nError: " + e.getMessage());
         }
     }
-    
+
 }
