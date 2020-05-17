@@ -15,27 +15,66 @@ import javax.persistence.EntityManager;
  */
 public abstract class Model {
 
+    private EntityManager em;
+
+    public Model() {
+
+    }
+
+    public Model(EntityManager em) {
+        this.em = em;
+    }
+
     public void create() {
-        DB.persistir(this);
+        if (this.em != null) {
+            DB.persistir(this, this.em);
+        } else {
+            DB.persistir(this);
+
+        }
     }
 
     public void update() {
-        DB.atualizar(this);
+        if (this.em != null) {
+            DB.atualizar(this, this.em);
+        } else {
+            DB.atualizar(this);
+        }
     }
 
     public void delete() {
-        DB.deletar(this);
+        if (this.em != null) {
+            DB.deletar(this, this.em);
+        } else {
+            DB.deletar(this);
+        }
     }
 
     public Object buscar(int id) {
-        return DB.buscar(this.getClass(), id);
+        if (this.em != null) {
+            return DB.buscar(this.getClass(), id, this.em);
+        } else {
+            return DB.buscar(this.getClass(), id);
+        }
     }
-    
+
     public List<Object> buscarTodos() {
-        return DB.buscarTodos(this.getClass());
+        if (this.em != null) {
+            return DB.buscarTodos(this.getClass(), this.em);
+        } else {
+            return DB.buscarTodos(this.getClass());
+        }
     }
-    
+
     public List<Object> where(String where) {
+        if (this.em != null) {
+        return DB.where(where, this.getClass(), this.em);
+        } else {
         return DB.where(where, this.getClass());
+        }
+    }
+
+    public EntityManager getEm() {
+        return em;
     }
 }

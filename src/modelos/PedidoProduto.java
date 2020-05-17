@@ -2,13 +2,14 @@ package modelos;
 
 import modelos.extensoes.Model;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class PedidoProduto extends Model{
+public class PedidoProduto extends Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +21,14 @@ public class PedidoProduto extends Model{
     private Pedido pedido;
     @ManyToOne
     private Produto produto;
+
+    public PedidoProduto() {
+
+    }
+
+    public PedidoProduto(EntityManager em) {
+        super(em);
+    }
 
     public int getId() {
         return id;

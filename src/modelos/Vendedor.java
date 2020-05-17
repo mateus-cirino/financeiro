@@ -4,6 +4,7 @@ import modelos.extensoes.Pessoa;
 import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,6 +12,13 @@ import javax.persistence.Id;
 @Entity
 public class Vendedor extends Pessoa {
 
+    public Vendedor() {
+
+    }
+
+    public Vendedor(EntityManager em) {
+        super(em);
+    }
     private Double percentualComissao;
 
     public Double getPercentualComissao() {

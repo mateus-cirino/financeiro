@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import javax.persistence.EntityManager;
 
 import modelos.Cliente;
 import modelos.Pedido;
@@ -17,15 +18,14 @@ import modelos.VendedorComissao;
 
 public class PedidoFachada {
 
-    public static void salvarPedido(Pedido pedido, Collection<Produto> produtos) {
+    public static void salvarPedido(Pedido pedido, Collection<Produto> produtos, EntityManager em) {
         try {
-            DB.inicirModoDeTransacao();
             pedido.create();
 
             produtos.forEach(p -> {
                 p.update(); //ATUALIZANDO O SALDO
 
-                ProdutoMovimento produtoMovimento = new ProdutoMovimento();
+                ProdutoMovimento produtoMovimento = new ProdutoMovimento(em);
                 produtoMovimento.setProduto(p);
                 produtoMovimento.setQuantidade(p.getQuantidade());
                 produtoMovimento.setData(new Date());
@@ -33,7 +33,7 @@ public class PedidoFachada {
                 produtoMovimento.setTipo(ProdutoMovimento.Operacao.S);
                 produtoMovimento.create();
 
-                PedidoProduto pedidoProduto = new PedidoProduto();
+                PedidoProduto pedidoProduto = new PedidoProduto(em);
                 pedidoProduto.setPedido(pedido);
                 pedidoProduto.setProduto(p);
                 pedidoProduto.setQuantidade(p.getQuantidade());
@@ -48,49 +48,48 @@ public class PedidoFachada {
 
             Vendedor vendedor = pedido.getVendedor();
 
-            VendedorComissao vendedorComissao = new VendedorComissao();;
+            VendedorComissao vendedorComissao = new VendedorComissao(em);
             vendedorComissao.setPedido(pedido);
             vendedorComissao.setVendedor(vendedor);
             vendedorComissao.setPercentual(vendedor.getPercentualComissao());
 
-            PedidoProduto pedidoProduto = new PedidoProduto();
+            PedidoProduto pedidoProduto = new PedidoProduto(em);
 
             vendedorComissao.setValor(
-                    vendedor.getPercentualComissao() * ((List<PedidoProduto>)(Object)pedidoProduto.where("pedido_id = " + pedido.getId())).stream()
+                    vendedor.getPercentualComissao() * ((List<PedidoProduto>) (Object) pedidoProduto.where("pedido_id = " + pedido.getId())).stream()
                     .mapToDouble(PedidoProduto::getValorTotal)
                     .sum()
             );
-            
+
             vendedorComissao.create();
 
-            DB.fecharModoDeTransacao();
+            DB.fecharModoDeTransacao(em);
         } catch (Exception e) {
-            DB.erroNaTransacao();
+            DB.erroNaTransacao(em);
             throw new RuntimeException("Não foi possível efetuar a operacao de "
                     + "salvar"
                     + "\nError: " + e.getMessage());
         }
     }
 
-    public static void excluirPedido(Pedido pedido) {
+    public static void excluirPedido(Pedido pedido, EntityManager em) {
         try {
-            DB.inicirModoDeTransacao();
-            VendedorComissao vendedorComissao = new VendedorComissao();
+            VendedorComissao vendedorComissao = new VendedorComissao(em);
             vendedorComissao.where("pedido_id = " + pedido.getId())
                     .forEach(vc -> {
                         ((VendedorComissao) vc).delete();
                     });
 
-            PedidoProduto pedidoProduto = new PedidoProduto();
+            PedidoProduto pedidoProduto = new PedidoProduto(em);
 
             pedidoProduto.where("pedido_id = " + pedido.getId())
                     .forEach(pp -> {
-                        Produto produto = new Produto();
+                        Produto produto = new Produto(em);
                         produto = (Produto) produto.buscar(((PedidoProduto) pp).getProduto().getId());
                         produto.setSaldo(produto.getSaldo() + ((PedidoProduto) pp).getQuantidade());
                         produto.update();
 
-                        ProdutoMovimento produtoMovimento = new ProdutoMovimento();
+                        ProdutoMovimento produtoMovimento = new ProdutoMovimento(em);
                         produtoMovimento.setProduto(produto);
                         produtoMovimento.setQuantidade(((PedidoProduto) pp).getQuantidade());
                         produtoMovimento.setData(new Date());
@@ -102,9 +101,9 @@ public class PedidoFachada {
 
             pedido.delete();
 
-            DB.fecharModoDeTransacao();
+            DB.fecharModoDeTransacao(em);
         } catch (Exception e) {
-            DB.erroNaTransacao();
+            DB.erroNaTransacao(em);
             throw new RuntimeException("Não foi possível efetuar a operacao de "
                     + "excluir"
                     + "\nError: " + e.getMessage());

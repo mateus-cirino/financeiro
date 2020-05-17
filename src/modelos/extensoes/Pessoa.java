@@ -1,6 +1,7 @@
 package modelos.extensoes;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -10,10 +11,19 @@ import javax.persistence.InheritanceType;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Pessoa extends Model {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String nome;
+
+    public Pessoa() {
+
+    }
+
+    public Pessoa(EntityManager em) {
+        super(em);
+    }
 
     public int getId() {
         return id;
@@ -30,5 +40,5 @@ public abstract class Pessoa extends Model {
     public void setNome(String nome) {
         this.nome = nome;
     }
-    
+
 }

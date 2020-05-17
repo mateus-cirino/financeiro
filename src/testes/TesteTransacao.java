@@ -34,9 +34,9 @@ public class TesteTransacao {
             cliente.setCpf("-1");
             cliente.update();
             
-            DB.fecharModoDeTransacao();
+            //DB.fecharModoDeTransacao();
         } catch (Exception e) {
-            DB.erroNaTransacao();
+            //DB.erroNaTransacao();
         }
         
     }

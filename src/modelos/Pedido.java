@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import modelos.extensoes.Model;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -26,6 +27,14 @@ public class Pedido extends Model{
     @ManyToOne
     private Vendedor vendedor;
 
+    public Pedido() {
+        
+    }
+    
+    public Pedido(EntityManager em) {
+        super(em);
+    }
+    
     public int getId() {
         return id;
     }

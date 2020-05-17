@@ -21,88 +21,92 @@ public class DB {
 
     private static EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-    private static boolean modoDeTransacao = false;
-
-    public static void inicirModoDeTransacao() {
-        if (entityManager.isOpen()) {
-            entityManager.close();
-        }
-        entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        modoDeTransacao = true;
+    public static EntityManager inicirModoDeTransacao() {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+        return em;
     }
 
-    public static void fecharModoDeTransacao() {
-        entityManager.getTransaction().commit();
-        modoDeTransacao = false;
+    public static void fecharModoDeTransacao(EntityManager em) {
+        em.getTransaction().commit();
+        em.close();
     }
 
-    public static void erroNaTransacao() {
-        entityManager.getTransaction().rollback();
-        entityManager.close();
-        modoDeTransacao = false;
+    public static void erroNaTransacao(EntityManager em) {
+        em.getTransaction().rollback();
+        em.close();
     }
 
     public static void persistir(Object objeto) {
-        if (!modoDeTransacao) {
-            entityManager.getTransaction().begin();
+        entityManager.getTransaction().begin();
 
-            entityManager.persist(objeto);
-            entityManager.detach(objeto);
+        entityManager.persist(objeto);
+        entityManager.detach(objeto);
 
-            entityManager.getTransaction().commit();
-        } else {
-            entityManager.persist(objeto);
-            entityManager.detach(objeto);
-        }
+        entityManager.getTransaction().commit();
+    }
+
+    public static void persistir(Object objeto, EntityManager em) {
+        em.persist(objeto);
+        em.detach(objeto);
     }
 
     public static void atualizar(Object objeto) {
-        if (!modoDeTransacao) {
-            entityManager.getTransaction().begin();
+        entityManager.getTransaction().begin();
 
-            entityManager.detach(entityManager.merge(objeto));
+        entityManager.detach(entityManager.merge(objeto));
 
-            entityManager.getTransaction().commit();
-        } else {
-            entityManager.detach(entityManager.merge(objeto));
-        }
+        entityManager.getTransaction().commit();
+    }
+
+    public static void atualizar(Object objeto, EntityManager em) {
+        entityManager.detach(entityManager.merge(objeto));
     }
 
     public static void deletar(Object objeto) {
-        if (!modoDeTransacao) {
-            entityManager.getTransaction().begin();
+        entityManager.getTransaction().begin();
 
-            entityManager.remove(entityManager.merge(objeto));
+        entityManager.remove(entityManager.merge(objeto));
 
-            entityManager.getTransaction().commit();
-        } else {
-            entityManager.remove(entityManager.merge(objeto));
-        }
+        entityManager.getTransaction().commit();
+    }
+
+    public static void deletar(Object objeto, EntityManager em) {
+        entityManager.remove(entityManager.merge(objeto));
     }
 
     public static Object buscar(Class classe, int id) {
-        Object objeto;
-        if (!modoDeTransacao) {
-            entityManager.getTransaction().begin();
+        entityManager.getTransaction().begin();
 
-            objeto = entityManager.find(classe, id);
+        Object objeto = entityManager.find(classe, id);
 
-            entityManager.getTransaction().commit();
-        } else {
-            objeto = entityManager.find(classe, id);
-        }
+        entityManager.getTransaction().commit();
 
         return objeto;
     }
-    
+
+    public static Object buscar(Class classe, int id, EntityManager em) {
+        Object objeto = em.find(classe, id);
+        return objeto;
+    }
+
     public static List<Object> buscarTodos(Class classe) {
         Query query = entityManager.createQuery("FROM " + classe.getName(), classe);
         return query.getResultList();
     }
 
-    public static List where(String where, Class classe) {
-       Query query = entityManager.createQuery("FROM " + classe.getSimpleName() + " WHERE " + where);
+    public static List<Object> buscarTodos(Class classe, EntityManager em) {
+        Query query = em.createQuery("FROM " + classe.getName(), classe);
+        return query.getResultList();
+    }
+
+    public static List<Object> where(String where, Class classe) {
+        Query query = entityManager.createQuery("FROM " + classe.getSimpleName() + " WHERE " + where);
+        return query.getResultList();
+    }
+    
+    public static List<Object> where(String where, Class classe, EntityManager em) {
+        Query query = em.createQuery("FROM " + classe.getSimpleName() + " WHERE " + where);
         return query.getResultList();
     }
 }
